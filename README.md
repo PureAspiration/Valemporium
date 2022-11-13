@@ -1,12 +1,12 @@
 <p align="center">
-  <a href="https://discord.com/oauth2/authorize?client_id=888741654482272276&permissions=2147739648&scope=bot" target="_blank">
+  <a href="https://discord.com/api/oauth2/authorize?client_id=1041230132905521233&permissions=191488&scope=bot%20applications.commands" target="_blank">
     <img src="https://i.imgur.com/AzYNlkJ.png" alt="Logo" width="150">
   </a>
   <br>
   <h3 align="center">Valemporium</h3>
   <p align="center">A Valorant store checker Discord bot</p>
   <br>
-  <a href="https://discord.com/oauth2/authorize?client_id=888741654482272276&permissions=2147739648&scope=bot" target="_blank">
+  <a href="https://discord.com/api/oauth2/authorize?client_id=1041230132905521233&permissions=191488&scope=bot%20applications.commands" target="_blank">
   <p align="center"> -  Invite this bot to your server</p>
   </a>
   <a href="https://github.com/PureAspiration/Valemporium/issues" target="_blank">
