@@ -52,7 +52,7 @@ def unknown_error():
 
 def help_command():
     embed = discord.Embed(title="Valemporium - Help", description="All available commands", color=discord.Color.blue())
-    embed.add_field(name="/store", value="Retrieve the store of a player", inline=False)
+    embed.add_field(name="/store", value="Retrieves the store of a player", inline=False)
     embed.add_field(name="/balance", value="Retrieves the balance of your Valorant account", inline=False)
     embed.add_field(name="/adduser", value="Saves login credentials to the database (ONLY use this command in DMs)", inline=False)
     embed.add_field(name="/deluser", value="Deletes login credentials from the database", inline=False)
@@ -66,8 +66,8 @@ def about_command():
     embed = discord.Embed(title="Valemporium - About", description="About Valemporium", color=discord.Color.blue())
     embed.add_field(name="Developer", value="Bot created and coded by Pure#0004", inline=False)
     embed.add_field(name="Security and Privacy", value="All passwords and credentials are encrypted with Fernet and stored in a secure database.", inline=False)
-    embed.add_field(name="Source", value="This project is open source and can be viewed on Github.", inline=False)
-    embed.add_field(name="Built with", value="This project is heavy based on Valorina, Python, PyMongo.", inline=False)
-    embed.add_field(name="License", value="Distributed under the MIT License. Copyright (c) 2022 Phineas Ou", inline=False)
+    embed.add_field(name="Source", value="This project is open source and can be viewed on [Github](https://github.com/PureAspiration/Valemporium).", inline=False)
+    embed.add_field(name="Built with", value="This project is heavy based on [Valorina](https://github.com/sanjaybaskaran01/Valorina), [python-riot-auth](https://github.com/floxay/python-riot-auth), PyMongo.", inline=False)
+    embed.add_field(name="License", value="Distributed under the MIT License. Copyright (c) 2022 PureAspiration", inline=False)
     embed.add_field(name="Legal", value="For any riot employees, please contact Pure#0004 regarding this bot before taking any actions on our players and users.\n\nValemporium is not endorsed by Riot Games and the developer is not liable for any damage, bans, or loss of account caused by this bot.\nRiot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.", inline=False)
     return embed

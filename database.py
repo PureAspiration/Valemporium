@@ -8,7 +8,7 @@ load_dotenv()
 MONGO_USERNAME = os.getenv("MONGO_USERNAME")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
 MONGO_CONNECTION_STRING = os.getenv("MONGO_CONNECTION_STRING")
-FERNET_KEY = os.getenv("MONGO_FERNET_KEY")
+FERNET_KEY = os.getenv("FERNET_KEY")
 cluster = pymongo.MongoClient(f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_CONNECTION_STRING}/?retryWrites=true&w=majority")
 database = cluster["valorant_logins"]
 
