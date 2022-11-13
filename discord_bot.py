@@ -26,7 +26,6 @@ class Bot(discord.Client):
         sync_start_time = time.time()
         await self.wait_until_ready()
         if not self.synced:
-            # await tree.sync(guild=discord.Object(id=guild_id))
             await tree.sync()
             self.synced = True
         print(f"Sync completed in {round(time.time() - sync_start_time, 2)} seconds")
@@ -279,5 +278,4 @@ async def self(interaction: discord.Interaction):
     await interaction.response.send_message(embed=bot_responses.about_command())
 
 
-# noinspection SpellCheckingInspection
 client.run(BOT_TOKEN)
