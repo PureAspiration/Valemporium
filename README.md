@@ -59,6 +59,11 @@ Only enter passwords in direct messages with the bot
 
 <br>
 
+## Project References
+This project is heavy based and not a copy of [`Valorina`](https://github.com/sanjaybaskaran01/Valorina).
+With code from [`python-riot-auth`](https://github.com/floxay/python-riot-auth)
+<br><br>
+
 ## License
 Distributed under the MIT License. See [`LICENSE`](./LICENSE.md) for more information.
 <br><br>
