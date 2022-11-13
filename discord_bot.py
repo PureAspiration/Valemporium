@@ -11,6 +11,7 @@ import bot_responses
 import database
 import get_store
 import riot_authorization
+from keep_alive import keep_alive
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -293,4 +294,5 @@ async def self(interaction: discord.Interaction):
     await interaction.response.send_message(embed=bot_responses.about_command())
 
 
+keep_alive()
 client.run(BOT_TOKEN)
