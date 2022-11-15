@@ -2,7 +2,7 @@ import asyncio
 import os
 import time
 import traceback
-from typing import Literal
+from typing import Literal, Optional
 
 import discord
 from discord import app_commands
@@ -40,7 +40,7 @@ tree = app_commands.CommandTree(client)
 
 
 @tree.command(name="store", description="Retrieve the store of a player")
-async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na"]):
+async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na"], multifactor_code: Optional[str] = None):
     try:
         print("============================================")
         print(f"/store command ran by {interaction.user}")
@@ -61,10 +61,10 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             await interaction.followup.send(embed=bot_responses.user_does_not_exist(username))
             return
         # Authorize riot account
-        password = credentials["password"]
+        password = credentials['password']
+        auth = riot_authorization.RiotAuth()
         try:
-            auth = riot_authorization.RiotAuth()
-            await auth.authorize(username, password)
+            await auth.authorize(username, password, multifactor_code=multifactor_code)
         except riot_authorization.Exceptions.RiotAuthenticationError:
             await interaction.followup.send(embed=bot_responses.authentication_error())
             return
@@ -72,18 +72,26 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             await interaction.followup.send(embed=bot_responses.rate_limit_error())
             return
         except riot_authorization.Exceptions.RiotMultifactorError:
+            # No multifactor provided check
+            if multifactor_code is None:
+                await interaction.followup.send(embed=bot_responses.multifactor_detected())
+                return
             await interaction.followup.send(embed=bot_responses.multifactor_error())
             return
         # All other exceptions will be handled by global
+
         # Get store
         # noinspection SpellCheckingInspection
         headers = {
-            "Authorization": f'Bearer {auth.access_token}',
+            "Authorization": f"Bearer {auth.access_token}",
             "User-Agent": username,
             "X-Riot-Entitlements-JWT": auth.entitlements_token,
             "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
             "X-Riot-ClientVersion": "pbe-shipping-55-604424"
         }
+        print(headers)
+        print(auth.access_token)
+        print(auth.user_id)
         store = get_store.getStore(headers, auth.user_id, region)
         embed = discord.Embed(title="Offer ends in", description=store[1], color=discord.Color.gold())
         await interaction.followup.send(embed=embed)
@@ -122,7 +130,7 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             await interaction.followup.send(embed=bot_responses.user_does_not_exist(username))
             return
         # Authorize riot account
-        password = credentials["password"]
+        password = credentials['password']
         try:
             auth = riot_authorization.RiotAuth()
             await auth.authorize(username, password)
@@ -139,7 +147,7 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
         # Get balance
         # noinspection SpellCheckingInspection
         headers = {
-            "Authorization": f'Bearer {auth.access_token}',
+            "Authorization": f"Bearer {auth.access_token}",
             "User-Agent": username,
             "X-Riot-Entitlements-JWT": auth.entitlements_token,
             "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",

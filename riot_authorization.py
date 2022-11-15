@@ -23,7 +23,13 @@ class Exceptions:
         """Rate limit error."""
 
     class RiotMultifactorError(RiotAuthError):
-        """Error related to multi-factor authentication."""
+        """Base class for errors related to multi-factor authentication."""
+
+    class RiotMultifactorDetectError(RiotMultifactorError):
+        """Multi-factor authentication detected."""
+
+    class RiotMultifactorAuthError(RiotMultifactorError):
+        """Failed to authenticate with multi-factor."""
 
     class RiotUnknownResponseTypeError(RiotAuthError):
         """Unknown response type."""
@@ -116,7 +122,7 @@ class RiotAuth:
         # setting SSL_CTRL_SET_SIGALGS_LIST
         libssl.SSL_CTX_ctrl(ssl_ctx_addr, 98, 0, RiotAuth.SIGALGS.encode())
 
-        # print([cipher["name"] for cipher in ssl_ctx.get_ciphers()])
+        # print([cipher['name'] for cipher in ssl_ctx.get_ciphers()])
         return ssl_ctx
 
     def __update(
@@ -152,15 +158,15 @@ class RiotAuth:
         return [(attr, temp_dict.get(key)) for key, attr in key_attr_pairs]
 
     def __set_tokens_from_uri(self, data: Dict) -> None:
-        mode = data["response"]["mode"]
-        uri = data["response"]["parameters"]["uri"]
+        mode = data['response']['mode']
+        uri = data['response']['parameters']['uri']
 
         result = getattr(urlsplit(uri), mode)
         data = dict(parse_qsl(result))
         self.__update(extract_jwt=True, **data)
 
     async def authorize(
-            self, username: str, password: str, use_query_response_mode: bool = False
+            self, username: str, password: str, use_query_response_mode: bool = False, multifactor_code: str = None
     ) -> None:
         """
         Authenticate using username and password.
@@ -193,14 +199,14 @@ class RiotAuth:
                 "scope": "openid link ban lol_region account",
             }
             if use_query_response_mode:
-                body["response_mode"] = "query"
+                body['response_mode'] = "query"
             async with session.post(
                     "https://auth.riotgames.com/api/v1/authorization",
                     json=body,
                     headers=headers,
             ) as r:
                 data: Dict = await r.json()
-                resp_type = data["type"]
+                resp_type = data['type']
             # endregion
 
             if resp_type != "response":  # not reauth
@@ -220,7 +226,7 @@ class RiotAuth:
                             headers=headers,
                     ) as r:
                         data: Dict = await r.json()
-                        resp_type = data["type"]
+                        resp_type = data['type']
                         if resp_type == "response":
                             break
                         elif resp_type == "auth":
@@ -236,26 +242,34 @@ class RiotAuth:
                                     f"Got unknown error `{err}` during authentication."
                                 )
                         elif resp_type == "multifactor":
-                            raise Exceptions.RiotMultifactorError("Multifactor is not supported. Disable 2FA and try again.")
-
+                            if multifactor_code is None:
+                                raise Exceptions.RiotMultifactorDetectError("Detected multifactor. Please enter your multifactor code.")
+                            elif "error" in data and data["error"] == "multifactor_attempt_failed":
+                                raise Exceptions.RiotMultifactorAuthError("Invalid multifactor code. Please check and try again.")
+                            else:
+                                body = {
+                                    "type": "multifactor",
+                                    "code": multifactor_code,
+                                    "rememberDevice": True
+                                }
                         else:
                             raise Exceptions.RiotUnknownResponseTypeError(
                                 f"Got unknown response type `{resp_type}` during authentication."
                             )
-                            # endregion
+                    # endregion
 
             self._cookie_jar = session.cookie_jar
             self.__set_tokens_from_uri(data)
 
             # region Get new entitlements token
-            headers["Authorization"] = f"{self.token_type} {self.access_token}"
+            headers['Authorization'] = f"{self.token_type} {self.access_token}"
             async with session.post(
                     "https://entitlements.auth.riotgames.com/api/token/v1",
                     headers=headers,
                     json={},
                     # json={"urn": "urn:entitlement:%"},
             ) as r:
-                self.entitlements_token = (await r.json())["entitlements_token"]
+                self.entitlements_token = (await r.json())['entitlements_token']
             # endregion
 
     async def reauthorize(self) -> bool:
@@ -274,4 +288,4 @@ class RiotAuth:
 def get_user_agent():
     response = requests.get("https://valorant-api.com/v1/version")
     version_data = response.json()
-    return version_data["data"]["riotClientBuild"]
+    return version_data['data']['riotClientBuild']

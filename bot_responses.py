@@ -35,15 +35,19 @@ def user_updated(username):
 
 
 def authentication_error():
-    return discord.Embed(title="Authentication Error", description="Make sure your username and password are correct and try again.", color=discord.Color.red())
+    return discord.Embed(title="Authentication Error", description="Make sure your username and password are correct and try again.\nEnsure you are using your riot username and not your Valorant display name.", color=discord.Color.red())
 
 
 def rate_limit_error():
     return discord.Embed(title="Rate Limited", description="Your request has been rate limited by riot.\nPlease try again in a couple minutes.", color=discord.Color.red())
 
 
+def multifactor_detected():
+    return discord.Embed(title="Multifactor Detected", description="Your account has 2FA enabled.\nPlease use the command: /store <username> <region> <multifactor_code>.\n\nNote that you will need enter a new multifactor code every time you check your store.\nAlternatively, you can disable 2FA at [Riot Account Management](https://account.riotgames.com/)", color=discord.Color.red())
+
+
 def multifactor_error():
-    return discord.Embed(title="Multifactor Unsupported", description="Your account has 2FA enabled.\nPlease disable 2FA and try again", color=discord.Color.red())
+    return discord.Embed(title="Multifactor Failed", description="The 2FA code you entered was incorrect.\nPlease confirm your code or request a new code with the command: /store <username> <region>.\n\nNote that you will need enter a new multifactor code every time you check your store.\nAlternatively, you can disable 2FA at [Riot Account Management](https://account.riotgames.com/)", color=discord.Color.red())
 
 
 def unknown_error():
