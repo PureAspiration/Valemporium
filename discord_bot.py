@@ -1,3 +1,4 @@
+import asyncio
 import os
 import time
 import traceback
@@ -31,6 +32,7 @@ class Bot(discord.Client):
             self.synced = True
         print(f"Sync completed in {round(time.time() - sync_start_time, 2)} seconds")
         print(f"Bot started and logged in as {self.user}")
+        self.loop.create_task(loop_task())
 
 
 client = Bot()
@@ -294,5 +296,19 @@ async def self(interaction: discord.Interaction):
     await interaction.response.send_message(embed=bot_responses.about_command())
 
 
+# Update status every 30 seconds to keep alive
+async def loop_task():
+    while True:
+        await client.change_presence(activity=discord.Game(""))
+        await asyncio.sleep(30)
+
 keep_alive()
-client.run(BOT_TOKEN)
+
+while True:
+    try:
+        client.run(BOT_TOKEN)
+    except discord.errors.HTTPException as exception:  # Too many requests sent, cloudflare blocks request
+        print(f"HTTPException: {exception}")
+        traceback.print_exc()
+        print("Attempting to reset ip...")
+        os.system("kill 1")
