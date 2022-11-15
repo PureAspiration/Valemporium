@@ -59,7 +59,7 @@ def help_command():
     embed.add_field(name="/store", value="Retrieves the store of a player", inline=False)
     embed.add_field(name="/balance", value="Retrieves the balance of your Valorant account", inline=False)
     embed.add_field(name="/adduser", value="Saves login credentials to the database (ONLY use this command in DMs)", inline=False)
-    embed.add_field(name="/deluser", value="Deletes login credentials from the database", inline=False)
+    embed.add_field(name="/deluser", value="Deletes login credentials from the database (ONLY use this command in DMs)", inline=False)
     embed.add_field(name="/setpassword", value="Edits the password of the user in the database (ONLY use this command in DMs)", inline=False)
     embed.add_field(name="/about", value="About Valemporium", inline=False)
     embed.add_field(name="⠀", value="Enter your riot username, not your Valorant display name\nOnly enter passwords in direct messages with the bot", inline=False)

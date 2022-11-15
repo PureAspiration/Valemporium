@@ -40,26 +40,27 @@ tree = app_commands.CommandTree(client)
 
 
 @tree.command(name="store", description="Retrieve the store of a player")
-async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na"], multifactor_code: Optional[str] = None):
+async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na", "help"], multifactor_code: Optional[str] = None):
     try:
         print("============================================")
         print(f"/store command ran by {interaction.user}")
-        await interaction.response.defer()
         # Valid region check
         region = region.lower()
         if region not in ["ap", "eu", "kr", "na"]:
-            await interaction.followup.send(embed=bot_responses.invalid_region())
+            await interaction.response.send_message(embed=bot_responses.invalid_region())
             return
         # User does not exist check
         if not database.check_user_existence(username, region):
-            await interaction.followup.send(embed=bot_responses.user_does_not_exist(username))
+            await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
             return
         # Get user credentials
         credentials = database.get_user(username, region)
         # Database fetch failed check
         if not credentials:
-            await interaction.followup.send(embed=bot_responses.user_does_not_exist(username))
+            await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
             return
+        # Start response defer
+        await interaction.response.defer()
         # Authorize riot account
         password = credentials['password']
         auth = riot_authorization.RiotAuth()
@@ -102,33 +103,35 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
         return
 
     except Exception as exception:
-        await interaction.followup.send(embed=bot_responses.unknown_error())
+        # Use channel.send as response.send_message and followup.send cannot be used
+        await interaction.channel.send(embed=bot_responses.unknown_error())
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
         return
 
 
 @tree.command(name="balance", description="Retrieves the balance of your Valorant account")
-async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na"]):
+async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na", "help"]):
     try:
         print("============================================")
         print(f"/balance command ran by {interaction.user}")
-        await interaction.response.defer()
         # Valid region check
         region = region.lower()
         if region not in ["ap", "eu", "kr", "na"]:
-            await interaction.followup.send(embed=bot_responses.invalid_region())
+            await interaction.response.send_message(embed=bot_responses.invalid_region())
             return
         # User does not exist check
         if not database.check_user_existence(username, region):
-            await interaction.followup.send(embed=bot_responses.user_does_not_exist(username))
+            await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
             return
         # Get user credentials
         credentials = database.get_user(username, region)
         # Database fetch failed check
         if not credentials:
-            await interaction.followup.send(embed=bot_responses.user_does_not_exist(username))
+            await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
             return
+        # Start response defer
+        await interaction.response.defer()
         # Authorize riot account
         password = credentials['password']
         try:
@@ -159,31 +162,33 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
         return
 
     except Exception as exception:
-        await interaction.followup.send(embed=bot_responses.unknown_error())
+        # Use channel.send as response.send_message and followup.send cannot be used
+        await interaction.channel.send(embed=bot_responses.unknown_error())
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
         return
 
 
 @tree.command(name="adduser", description="Saves login credentials to the database (ONLY use this command in DMs)")
-async def self(interaction: discord.Interaction, username: str, password: str, region: Literal["ap", "eu", "kr", "na"]):
+async def self(interaction: discord.Interaction, username: str, password: str, region: Literal["ap", "eu", "kr", "na", "help"]):
     try:
         print("============================================")
         print(f"/adduser command ran by {interaction.user}")
-        await interaction.response.defer()
         # Private DM check
         if interaction.channel.type != discord.ChannelType.private:
-            await interaction.followup.send(embed=bot_responses.invalid_channel(), ephemeral=True)
+            await interaction.response.send_message(embed=bot_responses.invalid_channel(), ephemeral=True)
             return
         # Valid region check
         region = region.lower()
         if region not in ["ap", "eu", "kr", "na"]:
-            await interaction.followup.send(embed=bot_responses.invalid_region())
+            await interaction.response.send_message(embed=bot_responses.invalid_region())
             return
         # User already exists check
         if database.check_user_existence(username, region):
-            await interaction.followup.send(embed=bot_responses.user_already_exists(username))
+            await interaction.response.send_message(embed=bot_responses.user_already_exists(username))
             return
+        # Start response defer
+        await interaction.response.defer()
         # Valid login credentials check
         try:
             auth = riot_authorization.RiotAuth()
@@ -204,59 +209,64 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
         return
 
     except Exception as exception:
-        await interaction.followup.send(embed=bot_responses.unknown_error())
+        # Use channel.send as response.send_message and followup.send cannot be used
+        await interaction.channel.send(embed=bot_responses.unknown_error())
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
         return
 
 
-@tree.command(name="deluser", description="Deletes login credentials from the database")
-async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na"]):
+@tree.command(name="deluser", description="Deletes login credentials from the database (ONLY use this command in DMs)")
+async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na", "help"]):
     try:
         print("============================================")
         print(f"/deluser command ran by {interaction.user}")
-        await interaction.response.defer()
+        # Private DM check
+        if interaction.channel.type != discord.ChannelType.private:
+            await interaction.response.send_message(embed=bot_responses.invalid_channel(), ephemeral=True)
+            return
         # Valid region check
         region = region.lower()
         if region not in ["ap", "eu", "kr", "na"]:
-            await interaction.followup.send(embed=bot_responses.invalid_region())
+            await interaction.response.send_message(embed=bot_responses.invalid_region())
             return
         # User does not exist check
         if not database.check_user_existence(username, region):
-            await interaction.followup.send(embed=bot_responses.user_does_not_exist(username))
+            await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
             return
         # Delete from database
         print("Deleting account details from database...")
         database.delete_user(username, region)
-        await interaction.followup.send(embed=bot_responses.user_deleted(username))
+        await interaction.response.send_message(embed=bot_responses.user_deleted(username))
         return
 
     except Exception as exception:
-        await interaction.followup.send(embed=bot_responses.unknown_error())
+        await interaction.response.send_message(embed=bot_responses.unknown_error())
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
         return
 
 
 @tree.command(name="setpassword", description="Edits the password of the user in the database (ONLY use this command in DMs)")
-async def self(interaction: discord.Interaction, username: str, password: str, region: Literal["ap", "eu", "kr", "na"]):
+async def self(interaction: discord.Interaction, username: str, password: str, region: Literal["ap", "eu", "kr", "na", "help"]):
     try:
         print("============================================")
         print(f"/setpassword command ran by {interaction.user}")
-        await interaction.response.defer()
         # Private DM check
         if interaction.channel.type != discord.ChannelType.private:
-            await interaction.followup.send(embed=bot_responses.invalid_channel(), ephemeral=True)
+            await interaction.response.send_message(embed=bot_responses.invalid_channel(), ephemeral=True)
             return
         # Valid region check
         region = region.lower()
         if region not in ["ap", "eu", "kr", "na"]:
-            await interaction.followup.send(embed=bot_responses.invalid_region())
+            await interaction.response.send_message(embed=bot_responses.invalid_region())
             return
         # User does not exist check
         if not database.check_user_existence(username, region):
-            await interaction.followup.send(embed=bot_responses.user_does_not_exist(username))
+            await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
             return
+        # Start response defer
+        await interaction.response.defer()
         # Valid login credentials check
         try:
             auth = riot_authorization.RiotAuth()
@@ -277,7 +287,8 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
         return
 
     except Exception as exception:
-        await interaction.followup.send(embed=bot_responses.unknown_error())
+        # Use channel.send as response.send_message and followup.send cannot be used
+        await interaction.channel.send(embed=bot_responses.unknown_error())
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
         return

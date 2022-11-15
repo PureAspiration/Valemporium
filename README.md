@@ -40,7 +40,7 @@ Only enter passwords in direct messages with the bot
 <br>
 
     /deluser <username> <region>
-    Deletes login credentials from the database
+    Deletes login credentials from the database (ONLY use this command in DMs)
 
 <br>
 
