@@ -48,16 +48,19 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
         region = region.lower()
         if region not in ["ap", "eu", "kr", "na"]:
             await interaction.response.send_message(embed=bot_responses.invalid_region())
+            print("Invalid region")
             return
         # User does not exist check
         if not database.check_user_existence(username, region):
             await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
+            print("User does not exist")
             return
         # Get user credentials
         credentials = database.get_user(username, region)
         # Database fetch failed check
         if not credentials:
             await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
+            print("User does not exist")
             return
         # Start response defer
         await interaction.response.defer()
@@ -68,16 +71,20 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             await auth.authorize(username, password, multifactor_code=multifactor_code)
         except riot_authorization.Exceptions.RiotAuthenticationError:
             await interaction.followup.send(embed=bot_responses.authentication_error())
+            print("Authentication error")
             return
         except riot_authorization.Exceptions.RiotRatelimitError:
             await interaction.followup.send(embed=bot_responses.rate_limit_error())
+            print("Rate limited")
             return
         except riot_authorization.Exceptions.RiotMultifactorError:
             # No multifactor provided check
             if multifactor_code is None:
                 await interaction.followup.send(embed=bot_responses.multifactor_detected())
+                print("Multifactor detected")
                 return
             await interaction.followup.send(embed=bot_responses.multifactor_error())
+            print("Multifactor authentication error")
             return
         # All other exceptions will be handled by global
 
@@ -90,9 +97,6 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
             "X-Riot-ClientVersion": "pbe-shipping-55-604424"
         }
-        print(headers)
-        print(auth.access_token)
-        print(auth.user_id)
         store = get_store.getStore(headers, auth.user_id, region)
         embed = discord.Embed(title="Offer ends in", description=store[1], color=discord.Color.gold())
         await interaction.followup.send(embed=embed)
@@ -100,6 +104,7 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             embed = discord.Embed(title=item[0], description=f"Cost: {item[1]} Valorant Points", color=discord.Color.gold())
             embed.set_thumbnail(url=item[2])
             await interaction.channel.send(embed=embed)
+        print("Store fetch successful")
         return
 
     except Exception as exception:
@@ -111,7 +116,7 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
 
 
 @tree.command(name="balance", description="Retrieves the balance of your Valorant account")
-async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na", "help"]):
+async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na", "help"], multifactor_code: Optional[str] = None):
     try:
         print("============================================")
         print(f"/balance command ran by {interaction.user}")
@@ -119,16 +124,19 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
         region = region.lower()
         if region not in ["ap", "eu", "kr", "na"]:
             await interaction.response.send_message(embed=bot_responses.invalid_region())
+            print("Invalid region")
             return
         # User does not exist check
         if not database.check_user_existence(username, region):
             await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
+            print("User does not exist")
             return
         # Get user credentials
         credentials = database.get_user(username, region)
         # Database fetch failed check
         if not credentials:
             await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
+            print("User does not exist")
             return
         # Start response defer
         await interaction.response.defer()
@@ -139,12 +147,20 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             await auth.authorize(username, password)
         except riot_authorization.Exceptions.RiotAuthenticationError:
             await interaction.followup.send(embed=bot_responses.authentication_error())
+            print("Authentication error")
             return
         except riot_authorization.Exceptions.RiotRatelimitError:
             await interaction.followup.send(embed=bot_responses.rate_limit_error())
+            print("Rate limited")
             return
         except riot_authorization.Exceptions.RiotMultifactorError:
+            # No multifactor provided check
+            if multifactor_code is None:
+                await interaction.followup.send(embed=bot_responses.multifactor_detected())
+                print("Multifactor detected")
+                return
             await interaction.followup.send(embed=bot_responses.multifactor_error())
+            print("Multifactor authentication error")
             return
         # All other exceptions will be handled by global
         # Get balance
@@ -159,6 +175,7 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
         vp, rp = await get_store.get_balance(headers, auth.user_id, region)
         embed = discord.Embed(title="Balance", description=f"Valorant Points: {vp}\nRadianite Points: {rp}", color=discord.Color.gold())
         await interaction.followup.send(embed=embed)
+        print("Balance fetch successful")
         return
 
     except Exception as exception:
@@ -177,15 +194,18 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
         # Private DM check
         if interaction.channel.type != discord.ChannelType.private:
             await interaction.response.send_message(embed=bot_responses.invalid_channel(), ephemeral=True)
+            print("Invalid channel")
             return
         # Valid region check
         region = region.lower()
         if region not in ["ap", "eu", "kr", "na"]:
             await interaction.response.send_message(embed=bot_responses.invalid_region())
+            print("Invalid region")
             return
         # User already exists check
         if database.check_user_existence(username, region):
             await interaction.response.send_message(embed=bot_responses.user_already_exists(username))
+            print("User already exists")
             return
         # Start response defer
         await interaction.response.defer()
@@ -195,9 +215,11 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
             await auth.authorize(username, password)
         except riot_authorization.Exceptions.RiotAuthenticationError:
             await interaction.followup.send(embed=bot_responses.authentication_error())
+            print("Authentication error")
             return
         except riot_authorization.Exceptions.RiotRatelimitError:
             await interaction.followup.send(embed=bot_responses.rate_limit_error())
+            print("Rate limited")
             return
         except riot_authorization.Exceptions.RiotMultifactorError:
             pass
@@ -206,6 +228,7 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
         print("Adding account details to database...")
         database.add_user(username, password, region)
         await interaction.followup.send(embed=bot_responses.user_added(username))
+        print("Added account details to database")
         return
 
     except Exception as exception:
@@ -224,20 +247,24 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
         # Private DM check
         if interaction.channel.type != discord.ChannelType.private:
             await interaction.response.send_message(embed=bot_responses.invalid_channel(), ephemeral=True)
+            print("Invalid channel")
             return
         # Valid region check
         region = region.lower()
         if region not in ["ap", "eu", "kr", "na"]:
             await interaction.response.send_message(embed=bot_responses.invalid_region())
+            print("Invalid region")
             return
         # User does not exist check
         if not database.check_user_existence(username, region):
             await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
+            print("User does not exist")
             return
         # Delete from database
         print("Deleting account details from database...")
         database.delete_user(username, region)
         await interaction.response.send_message(embed=bot_responses.user_deleted(username))
+        print("Deleted account details from database")
         return
 
     except Exception as exception:
@@ -255,15 +282,18 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
         # Private DM check
         if interaction.channel.type != discord.ChannelType.private:
             await interaction.response.send_message(embed=bot_responses.invalid_channel(), ephemeral=True)
+            print("Invalid channel")
             return
         # Valid region check
         region = region.lower()
         if region not in ["ap", "eu", "kr", "na"]:
             await interaction.response.send_message(embed=bot_responses.invalid_region())
+            print("Invalid region")
             return
         # User does not exist check
         if not database.check_user_existence(username, region):
             await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
+            print("User does not exist")
             return
         # Start response defer
         await interaction.response.defer()
@@ -273,9 +303,11 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
             await auth.authorize(username, password)
         except riot_authorization.Exceptions.RiotAuthenticationError:
             await interaction.followup.send(embed=bot_responses.authentication_error())
+            print("Authentication error")
             return
         except riot_authorization.Exceptions.RiotRatelimitError:
             await interaction.followup.send(embed=bot_responses.rate_limit_error())
+            print("Rate limited")
             return
         except riot_authorization.Exceptions.RiotMultifactorError:
             pass
@@ -284,6 +316,7 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
         print("Updating account details to database...")
         database.update_password(username, password, region)
         await interaction.followup.send(embed=bot_responses.user_updated(username))
+        print("Updated account details to database")
         return
 
     except Exception as exception:

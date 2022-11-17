@@ -69,12 +69,12 @@ Distributed under the MIT License. See [`LICENSE`](./LICENSE.md) for more inform
 <br><br>
 
 ## Developer
-This project was developed by [`PureAspiration`](https://github.com/PureAspiration). You can contact me on discord at Pure#0004.
+This project was developed by [`PureAspiration`](https://github.com/PureAspiration). You can contact me on discord at Pure#2254.
 <br><br>
 
 ## Legal
-For any riot employees, please contact Pure#0004 regarding this bot before taking any actions on our players and users.
+For any riot employees, please contact Pure#2254 regarding this bot before taking any actions on our players and users.
 
-Valemporium is not endorsed by Riot Games and the developer is not liable for any damage, bans, or loss of account caused by this bot.
+Valemporium is not endorsed by Riot Games, and the developer is not liable for any damage, bans, or loss of account caused by this bot.
 
 Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.

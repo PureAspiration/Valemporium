@@ -1,3 +1,5 @@
+import datetime
+import time
 from threading import Thread
 
 from flask import Flask
@@ -7,7 +9,7 @@ app = Flask("")
 
 @app.route("/")
 def home():
-    return "I'm alive"
+    return datetime.datetime.fromtimestamp(time.time()).strftime("%d/%m/%Y %H:%M:%S")
 
 
 def run():
