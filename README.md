@@ -12,14 +12,16 @@
   <a href="https://github.com/PureAspiration/Valemporium/issues" target="_blank">
   <p align="center"> -  Report an issue/bug</p>
   </a>
-</p>
+  <a href="https://discord.gg/ejvddZr4Dw" target="_blank">
+  <p align="center"> -  Join the Valemporium Support Server</p>
+  </a>
 
 ## About
 Check the Valorant skins that are in your shop without opening Valorant client.
 <br><br>
 
 ## Usage
-All the following commands can be ran in direct messagess, or a server if not otherwise specified.
+All the following commands can be run in direct messages, or a server if not otherwise specified.
 Enter your riot username, not your Valorant display name.
 Only enter passwords in direct messages with the bot
 <br>

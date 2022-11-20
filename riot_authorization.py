@@ -1,3 +1,6 @@
+# Sourced and modified code from python-riot-auth by floxay
+# https://github.com/floxay/python-riot-auth
+
 import ctypes
 import json
 import ssl

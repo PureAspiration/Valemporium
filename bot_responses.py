@@ -35,7 +35,7 @@ def user_updated(username):
 
 
 def authentication_error():
-    return discord.Embed(title="Authentication Error", description="Make sure your username and password are correct and try again.\nEnsure you are using your riot username and not your Valorant display name.", color=discord.Color.red())
+    return discord.Embed(title="Authentication Error", description="Make sure your username and password are correct and try again.\nEnsure you are using your riot account sign-in and not your Valorant display name.\nIf you have updated your password, please use /setpassword <username> <password> <region> in DMs.", color=discord.Color.red())
 
 
 def rate_limit_error():
@@ -43,7 +43,7 @@ def rate_limit_error():
 
 
 def multifactor_detected():
-    return discord.Embed(title="Multifactor Detected", description="Your account has 2FA enabled.\nCheck your emails and use the command: /store <username> <region> <multifactor_code>.\n\nNote that you will need enter a new multifactor code every time you check your store.\nAlternatively, you can disable 2FA at [Riot Account Management](https://account.riotgames.com/)", color=discord.Color.red())
+    return discord.Embed(title="Enter 2FA Code", description="Your account has 2FA enabled.\nCheck your emails and use the command: /store <username> <region> <multifactor_code>.\n\nNote that you will need enter a new multifactor code every time you check your store.\nAlternatively, you can disable 2FA at [Riot Account Management](https://account.riotgames.com/)", color=discord.Color.red())
 
 
 def multifactor_error():
@@ -51,7 +51,7 @@ def multifactor_error():
 
 
 def unknown_error():
-    return discord.Embed(title="An Error Occurred", description="An unknown error occurred. This issue has been raised and will be fixed as soon as possible.", color=discord.Color.dark_red())
+    return discord.Embed(title="An Error Occurred", description="An unknown error occurred. This issue has been raised and will be fixed as soon as possible.\nIf this issue persists, please submit a request in the [Valemporium support server](https://discord.gg/ejvddZr4Dw)", color=discord.Color.dark_red())
 
 
 def help_command():
@@ -63,6 +63,7 @@ def help_command():
     embed.add_field(name="/setpassword", value="Edits the password of the user in the database (ONLY use this command in DMs)", inline=False)
     embed.add_field(name="/about", value="About Valemporium", inline=False)
     embed.add_field(name="Region Selection", value="ap - Asia/Pacific\neu - Europe\nkr - Korea\nna - North America, Brazil, and PBE", inline=False)
+    embed.add_field(name="Support Server", value="For Discord support, join the [Valemporium support server](https://discord.gg/ejvddZr4Dw)", inline=False)
     embed.add_field(name="⠀", value="Enter your riot username, not your Valorant display name\nOnly enter passwords in direct messages with the bot", inline=False)
     return embed
 
