@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import os
 import time
 import traceback
@@ -16,6 +17,10 @@ from keep_alive import keep_alive
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+
+def separator():
+    print(f"\n==========[@ {datetime.datetime.fromtimestamp(time.time()).strftime('%d/%m/%Y %H:%M:%S')}]==========")
 
 
 class Bot(discord.Client):
@@ -42,7 +47,7 @@ tree = app_commands.CommandTree(client)
 @tree.command(name="store", description="Retrieve the store of a player")
 async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na", "help"], multifactor_code: Optional[str] = None):
     try:
-        print("============================================")
+        separator()
         print(f"/store command ran by {interaction.user}")
         # Valid region check
         region = region.lower()
@@ -98,27 +103,30 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             "X-Riot-ClientVersion": "pbe-shipping-55-604424"
         }
         store = get_store.getStore(headers, auth.user_id, region)
-        embed = discord.Embed(title="Offer ends in", description=store[1], color=discord.Color.gold())
-        await interaction.followup.send(embed=embed)
-        for item in store[0]:
-            embed = discord.Embed(title=item[0], description=f"Cost: {item[1]} Valorant Points", color=discord.Color.gold())
-            embed.set_thumbnail(url=item[2])
-            await interaction.channel.send(embed=embed)
+        try:
+            for item in store[0]:
+                embed = discord.Embed(title=item[0], description=f"Cost: {item[1]} Valorant Points", color=discord.Color.gold())
+                embed.set_thumbnail(url=item[2])
+                await interaction.channel.send(embed=embed)
+        except discord.errors.Forbidden:
+            await interaction.followup.send(embed=bot_responses.permission_error())
+        else:
+            embed = discord.Embed(title="Offer ends in", description=store[1], color=discord.Color.gold())
+            await interaction.followup.send(embed=embed)
         print("Store fetch successful")
         return
 
     except Exception as exception:
-        # Use channel.send as response.send_message and followup.send cannot be used
-        await interaction.channel.send(embed=bot_responses.unknown_error())
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
+        await unknown_exception(interaction)
         return
 
 
 @tree.command(name="balance", description="Retrieves the balance of your Valorant account")
 async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na", "help"], multifactor_code: Optional[str] = None):
     try:
-        print("============================================")
+        separator()
         print(f"/balance command ran by {interaction.user}")
         # Valid region check
         region = region.lower()
@@ -179,17 +187,16 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
         return
 
     except Exception as exception:
-        # Use channel.send as response.send_message and followup.send cannot be used
-        await interaction.channel.send(embed=bot_responses.unknown_error())
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
+        await unknown_exception(interaction)
         return
 
 
 @tree.command(name="adduser", description="Saves login credentials to the database (ONLY use this command in DMs)")
 async def self(interaction: discord.Interaction, username: str, password: str, region: Literal["ap", "eu", "kr", "na", "help"]):
     try:
-        print("============================================")
+        separator()
         print(f"/adduser command ran by {interaction.user}")
         # Private DM check
         if interaction.channel.type != discord.ChannelType.private:
@@ -232,17 +239,16 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
         return
 
     except Exception as exception:
-        # Use channel.send as response.send_message and followup.send cannot be used
-        await interaction.channel.send(embed=bot_responses.unknown_error())
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
+        await unknown_exception(interaction)
         return
 
 
 @tree.command(name="deluser", description="Deletes login credentials from the database (ONLY use this command in DMs)")
 async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na", "help"]):
     try:
-        print("============================================")
+        separator()
         print(f"/deluser command ran by {interaction.user}")
         # Private DM check
         if interaction.channel.type != discord.ChannelType.private:
@@ -268,16 +274,16 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
         return
 
     except Exception as exception:
-        await interaction.response.send_message(embed=bot_responses.unknown_error())
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
+        await unknown_exception(interaction)
         return
 
 
 @tree.command(name="setpassword", description="Edits the password of the user in the database (ONLY use this command in DMs)")
 async def self(interaction: discord.Interaction, username: str, password: str, region: Literal["ap", "eu", "kr", "na", "help"]):
     try:
-        print("============================================")
+        separator()
         print(f"/setpassword command ran by {interaction.user}")
         # Private DM check
         if interaction.channel.type != discord.ChannelType.private:
@@ -320,32 +326,51 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
         return
 
     except Exception as exception:
-        # Use channel.send as response.send_message and followup.send cannot be used
-        await interaction.channel.send(embed=bot_responses.unknown_error())
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
+        await unknown_exception(interaction)
         return
 
 
 @tree.command(name="help", description="Lists all available commands and details")
 async def self(interaction: discord.Interaction):
-    print("============================================")
+    separator()
     print(f"/help command ran by {interaction.user}")
     await interaction.response.send_message(embed=bot_responses.help_command())
 
 
 @tree.command(name="info", description="About Valemporium")
 async def self(interaction: discord.Interaction):
-    print("============================================")
+    separator()
     print(f"/info command ran by {interaction.user}")
     await interaction.response.send_message(embed=bot_responses.about_command())
 
 
 @tree.command(name="about", description="About Valemporium")
 async def self(interaction: discord.Interaction):
-    print("============================================")
+    separator()
     print(f"/about command ran by {interaction.user}")
     await interaction.response.send_message(embed=bot_responses.about_command())
+
+
+async def unknown_exception(interaction: discord.Interaction):
+    try:
+        await interaction.response.send_message(embed=bot_responses.unknown_error())
+        print("Unknown error raised and sent with response.send_message")
+    except discord.errors.InteractionResponded:
+        print("Response could not be sent as interaction has been deferred. Attempting with followup...")
+        try:
+            await interaction.followup.send(embed=bot_responses.unknown_error())
+            print("Unknown error raised and sent with followup.send")
+        except Exception as exception:
+            try:
+                # Use channel.send if response.send_message and followup.send cannot be used
+                print(f"Follow up could not be sent: {type(exception).__name__} {exception}")
+                print("Force sending to channel")
+                await interaction.channel.send(embed=bot_responses.unknown_error())
+                print("Unknown error raised and sent with channel.send")
+            except discord.errors.Forbidden:
+                print("Unknown error raised but could not be sent with response.send_message/followup.send/channel.send")
 
 
 # Update status every 30 seconds to keep alive

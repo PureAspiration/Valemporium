@@ -1,6 +1,8 @@
 import discord
 
 
+# ------- Argument Error Responses -------
+
 def invalid_channel():
     return discord.Embed(title="Invalid Channel", description="To ensure privacy, please use this command in direct messages only.", color=discord.Color.red())
 
@@ -13,6 +15,8 @@ def invalid_region():
     embed.add_field(name="na", value="North America, Brazil, and PBE", inline=False)
     return embed
 
+
+# ------- Database Responses -------
 
 def user_already_exists(username):
     return discord.Embed(title="User Already Exists", description=f"\"{username}\" is already in the database.\nIf you want to update your password, use /setpassword.", color=discord.Color.red())
@@ -34,6 +38,8 @@ def user_updated(username):
     return discord.Embed(title="User Credentials Updated", description=f"The credentials of \"{username}\" have been updated to the database.", color=discord.Color.green())
 
 
+# ------- Riot Authentication Errors/Responses -------
+
 def authentication_error():
     return discord.Embed(title="Authentication Error", description="Make sure your username and password are correct and try again.\nEnsure you are using your riot account sign-in and not your Valorant display name.\nIf you have updated your password, please use /setpassword <username> <password> <region> in DMs.", color=discord.Color.red())
 
@@ -50,9 +56,19 @@ def multifactor_error():
     return discord.Embed(title="Multifactor Failed", description="The 2FA code you entered was incorrect.\nPlease confirm your code or request a new code with the command: /store <username> <region>.\n\nNote that you will need enter a new multifactor code every time you check your store.\nAlternatively, you can disable 2FA at [Riot Account Management](https://account.riotgames.com/)", color=discord.Color.red())
 
 
+# ------- Discord Bot Setup Error Responses -------
+
+def permission_error():
+    return discord.Embed(title="Permission Error (403 Forbidden)", description="Permissions in this server channel do not allow messages to be sent.\nA server admin will need to allow message sending for Valemporium in channel permission settings.", color=discord.Color.dark_red())
+
+
+# ------- Unknown Error (Unhandled exception) -------
+
 def unknown_error():
     return discord.Embed(title="An Error Occurred", description="An unknown error occurred. This issue has been raised and will be fixed as soon as possible.\nIf this issue persists, please submit a request in the [Valemporium support server](https://discord.gg/ejvddZr4Dw)", color=discord.Color.dark_red())
 
+
+# ------- Informational Responses -------
 
 def help_command():
     embed = discord.Embed(title="Valemporium - Help", description="All available commands and important command arguments", color=discord.Color.blue())
