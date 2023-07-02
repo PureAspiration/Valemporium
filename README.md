@@ -31,6 +31,11 @@ Only enter passwords in direct messages with the bot
 
 <br>
 
+    /accessorystore <username> <region>
+    Retrieves the accessory store of a player
+
+<br>
+
     /balance <username> <region>
     Retrieves the balance of your Valorant account
 
@@ -71,11 +76,11 @@ Distributed under the MIT License. See [`LICENSE`](./LICENSE.md) for more inform
 <br><br>
 
 ## Developer
-This project was developed by [`PureAspiration`](https://github.com/PureAspiration). You can contact me on discord at Pure#2254.
+This project was developed by [`PureAspiration`](https://github.com/PureAspiration). You can contact me on discord at `PureAspiration`.
 <br><br>
 
 ## Legal
-For any riot employees, please contact Pure#2254 regarding this bot before taking any actions on our players and users.
+For any riot employees, please contact `PureAspiration` regarding this bot before taking any actions on our players and users.
 
 Valemporium is not endorsed by Riot Games, and the developer is not liable for any damage, bans, or loss of account caused by this bot.
 

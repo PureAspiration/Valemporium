@@ -23,7 +23,7 @@ def user_already_exists(username):
 
 
 def user_does_not_exist(username):
-    return discord.Embed(title="User Does Not Exist", description=f"\"{username}\" is not in the database.\nIf you want to add this user, use /adduser", color=discord.Color.red())
+    return discord.Embed(title="User Does Not Exist", description=f"\"{username}\" is not in the database.\nIf you want to add this user, use /adduser in DMs.", color=discord.Color.red())
 
 
 def user_added(username):
@@ -73,6 +73,7 @@ def unknown_error():
 def help_command():
     embed = discord.Embed(title="Valemporium - Help", description="All available commands and important command arguments", color=discord.Color.blue())
     embed.add_field(name="/store", value="Retrieves the store of a player", inline=False)
+    embed.add_field(name="/accessorystore", value="Retrieves the accessory store of a player", inline=False)
     embed.add_field(name="/balance", value="Retrieves the balance of your Valorant account", inline=False)
     embed.add_field(name="/adduser", value="Saves login credentials to the database (ONLY use this command in DMs)", inline=False)
     embed.add_field(name="/deluser", value="Deletes login credentials from the database (ONLY use this command in DMs)", inline=False)

@@ -18,6 +18,10 @@ from keep_alive import keep_alive
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
+get_daily_store = [
+    {"username": "PureAspiration", "region": "ap", "receiver_user_id": 291147438444773376, "retrieved": False},
+    {"username": "tiya1017", "region": "ap", "receiver_user_id": 994493601297997834, "retrieved": False},
+]
 
 def separator():
     print(f"\n==========[@ {datetime.datetime.fromtimestamp(time.time()).strftime('%d/%m/%Y %H:%M:%S')}]==========")
@@ -37,6 +41,10 @@ class Bot(discord.Client):
             self.synced = True
         print(f"Sync completed in {round(time.time() - sync_start_time, 2)} seconds")
         print(f"Bot started and logged in as {self.user}")
+
+        user = await client.fetch_user(291147438444773376)
+        await user.send(f"Valemporium Started at {time.time()}")
+
         self.loop.create_task(loop_task())
 
 
@@ -102,16 +110,99 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
             "X-Riot-ClientVersion": "pbe-shipping-55-604424"
         }
-        store = get_store.getStore(headers, auth.user_id, region)
+        skin_panel, accessory_store = get_store.get_store(headers, auth.user_id, region)
+        store, store_time_left = get_store.get_skin_details(skin_panel, auth.user_id)
         try:
-            for item in store[0]:
-                embed = discord.Embed(title=item[0], description=f"Cost: {item[1]} Valorant Points", color=discord.Color.gold())
-                embed.set_thumbnail(url=item[2])
+            for item in store:
+                embed = discord.Embed(title=item['name'], description=f"Cost: {item['cost']} Valorant Points", color=discord.Color.gold())
+                embed.set_thumbnail(url=item['icon'])
+                await interaction.channel.send(embed=embed)
+            embed = discord.Embed(title="Accessory Store", description="You can now check the new accessory store with the `/accessorystore` command.", color=discord.Color.blue())
+            await interaction.channel.send(embed=embed)
+        except discord.errors.Forbidden:
+            await interaction.followup.send(embed=bot_responses.permission_error())
+        else:
+            embed = discord.Embed(title="Offer ends in", description=store_time_left, color=discord.Color.gold())
+            await interaction.followup.send(embed=embed)
+        print("Store fetch successful")
+        return
+
+    except Exception as exception:
+        print(f"Unknown exception occurred: {str(exception)}")
+        traceback.print_exc()
+        await unknown_exception(interaction)
+        return
+
+
+@tree.command(name="accessorystore", description="Retrieve the accessory store of a player")
+async def self(interaction: discord.Interaction, username: str, region: Literal["ap", "eu", "kr", "na", "help"], multifactor_code: Optional[str] = None):
+    try:
+        separator()
+        print(f"/store command ran by {interaction.user}")
+        # Valid region check
+        region = region.lower()
+        if region not in ["ap", "eu", "kr", "na"]:
+            await interaction.response.send_message(embed=bot_responses.invalid_region())
+            print("Invalid region")
+            return
+        # User does not exist check
+        if not database.check_user_existence(username, region):
+            await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
+            print("User does not exist")
+            return
+        # Get user credentials
+        credentials = database.get_user(username, region)
+        # Database fetch failed check
+        if not credentials:
+            await interaction.response.send_message(embed=bot_responses.user_does_not_exist(username))
+            print("User does not exist")
+            return
+        # Start response defer
+        await interaction.response.defer()
+        # Authorize riot account
+        password = credentials['password']
+        auth = riot_authorization.RiotAuth()
+        try:
+            await auth.authorize(username, password, multifactor_code=multifactor_code)
+        except riot_authorization.Exceptions.RiotAuthenticationError:
+            await interaction.followup.send(embed=bot_responses.authentication_error())
+            print("Authentication error")
+            return
+        except riot_authorization.Exceptions.RiotRatelimitError:
+            await interaction.followup.send(embed=bot_responses.rate_limit_error())
+            print("Rate limited")
+            return
+        except riot_authorization.Exceptions.RiotMultifactorError:
+            # No multifactor provided check
+            if multifactor_code is None:
+                await interaction.followup.send(embed=bot_responses.multifactor_detected())
+                print("Multifactor detected")
+                return
+            await interaction.followup.send(embed=bot_responses.multifactor_error())
+            print("Multifactor authentication error")
+            return
+        # All other exceptions will be handled by global
+
+        # Get store
+        # noinspection SpellCheckingInspection
+        headers = {
+            "Authorization": f"Bearer {auth.access_token}",
+            "User-Agent": username,
+            "X-Riot-Entitlements-JWT": auth.entitlements_token,
+            "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
+            "X-Riot-ClientVersion": "pbe-shipping-55-604424"
+        }
+        skin_panel, accessory_store = get_store.get_store(headers, auth.user_id, region)
+        store, store_time_left = get_store.get_accessory_details(accessory_store, auth.user_id)
+        try:
+            for item in store:
+                embed = discord.Embed(title=item['name'], description=f"Cost: {item['cost']} Kingdom Credits\nQuantity: {item['quantity']}", color=discord.Color.gold())
+                embed.set_thumbnail(url=item['icon'])
                 await interaction.channel.send(embed=embed)
         except discord.errors.Forbidden:
             await interaction.followup.send(embed=bot_responses.permission_error())
         else:
-            embed = discord.Embed(title="Offer ends in", description=store[1], color=discord.Color.gold())
+            embed = discord.Embed(title="Offer ends in", description=store_time_left, color=discord.Color.gold())
             await interaction.followup.send(embed=embed)
         print("Store fetch successful")
         return
@@ -180,8 +271,8 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
             "X-Riot-ClientVersion": "pbe-shipping-55-604424"
         }
-        vp, rp = await get_store.get_balance(headers, auth.user_id, region)
-        embed = discord.Embed(title="Balance", description=f"Valorant Points: {vp}\nRadianite Points: {rp}", color=discord.Color.gold())
+        vp, rp, kc = await get_store.get_balance(headers, auth.user_id, region)
+        embed = discord.Embed(title="Balance", description=f"Valorant Points: {vp}\nRadianite Points: {rp}\nKingdom Credits: {kc}", color=discord.Color.gold())
         await interaction.followup.send(embed=embed)
         print("Balance fetch successful")
         return
@@ -373,11 +464,123 @@ async def unknown_exception(interaction: discord.Interaction):
                 print("Unknown error raised but could not be sent with response.send_message/followup.send/channel.send")
 
 
-# Update status every 30 seconds to keep alive
+async def automatic_get_store(daily_store_user, get_accessory_store: bool):
+    try:
+        if not daily_store_user["retrieved"]:
+            print(f"Automatically getting store details for {daily_store_user}")
+            username = daily_store_user["username"]
+            region = daily_store_user["region"]
+            receiver_user_id = daily_store_user["receiver_user_id"]
+
+            user = await client.fetch_user(receiver_user_id)
+
+            # Valid region check
+            if region not in ["ap", "eu", "kr", "na"]:
+                print(f"Invalid Region for: {daily_store_user}")
+                return False
+            # User does not exist check
+            if not database.check_user_existence(username, region):
+                print(f"User does not exist: {daily_store_user}")
+                return False
+            # Get user credentials
+            credentials = database.get_user(username, region)
+            # Database fetch failed check
+            if not credentials:
+                print(f"User does not exist: {daily_store_user}")
+                return False
+            # Authorize riot account
+            password = credentials['password']
+            auth = riot_authorization.RiotAuth()
+            try:
+                await auth.authorize(username, password)
+            except riot_authorization.Exceptions.RiotAuthenticationError:
+                print(f"Authentication error: {daily_store_user}")
+                return False
+            except riot_authorization.Exceptions.RiotRatelimitError:
+                print(f"Rate limit error: {daily_store_user}")
+                return False
+            except riot_authorization.Exceptions.RiotMultifactorError:
+                print(f"Skipping fetch as there is multifactor for: {daily_store_user}")
+                return False
+            # All other exceptions will be handled by global
+
+            # Get store
+            # noinspection SpellCheckingInspection
+            headers = {
+                "Authorization": f"Bearer {auth.access_token}",
+                "User-Agent": username,
+                "X-Riot-Entitlements-JWT": auth.entitlements_token,
+                "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
+                "X-Riot-ClientVersion": "pbe-shipping-55-604424"
+            }
+            skin_panel, accessory_store = get_store.get_store(headers, auth.user_id, region)
+
+            store, store_time_left = get_store.get_skin_details(skin_panel, auth.user_id)
+            try:
+                for item in store:
+                    embed = discord.Embed(title=item['name'], description=f"Cost: {item['cost']} Valorant Points", color=discord.Color.gold())
+                    embed.set_thumbnail(url=item['icon'])
+                    await user.send(embed=embed)
+            except discord.errors.Forbidden:
+                await user.send(embed=bot_responses.permission_error())
+            else:
+                embed = discord.Embed(title="Offer ends in", description=store_time_left, color=discord.Color.gold())
+                await user.send(embed=embed)
+            print("Store fetch successful")
+
+            if get_accessory_store:
+                store, store_time_left = get_store.get_accessory_details(accessory_store, auth.user_id)
+                try:
+                    for item in store:
+                        embed = discord.Embed(title=item['name'], description=f"Cost: {item['cost']} Kingdom Credits\nQuantity: {item['quantity']}", color=discord.Color.gold())
+                        embed.set_thumbnail(url=item['icon'])
+                        await user.send(embed=embed)
+                except discord.errors.Forbidden:
+                    await user.send(embed=bot_responses.permission_error())
+                else:
+                    embed = discord.Embed(title="Offer ends in", description=store_time_left, color=discord.Color.gold())
+                    await user.send(embed=embed)
+                print("Store fetch successful")
+
+            return True
+
+    except Exception as exception:
+        print(f"Failed to get store for: {daily_store_user}")
+        print(f"Unknown error occurred {str(exception)}")
+        traceback.print_exc()
+        return False
+
+
+# Update status every 30 seconds to keep alive and check for get store
 async def loop_task():
     while True:
-        await client.change_presence(activity=discord.Game(""))
+        try:
+            await client.change_presence(activity=discord.Game(""))
+        except ConnectionResetError:
+            pass
+        except Exception as exception:
+            print(exception)
+            traceback.print_exc()
         await asyncio.sleep(30)
+
+        try:
+            day = int(datetime.datetime.now(datetime.timezone.utc).strftime("%w"))
+            hours = int(datetime.datetime.now(datetime.timezone.utc).strftime("%H"))
+            minutes = int(datetime.datetime.now(datetime.timezone.utc).strftime("%M"))
+            if hours == 0 and minutes < 10:  # If time is between 00:00 and 00:10
+                get_accessory_store = day == 3
+                for i, daily_store_user in enumerate(get_daily_store):
+                    await automatic_get_store(daily_store_user, get_accessory_store)
+                    get_daily_store[i]["retrieved"] = True
+            else:
+                for i in range(len(get_daily_store)):
+                    get_daily_store[i]["retrieved"] = False
+        except Exception as exception:
+            print("Failed to check timings to automatically get store")
+            print(f"Unknown error occurred {str(exception)}")
+            traceback.print_exc()
+            return False
+
 
 keep_alive()
 
@@ -387,5 +590,3 @@ while True:
     except discord.errors.HTTPException as exception:  # Too many requests sent, cloudflare blocks request
         print(f"HTTPException: {exception}")
         traceback.print_exc()
-        print("Attempting to reset ip...")
-        os.system("kill 1")
