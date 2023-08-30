@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import os
+import ssl
 import time
 import traceback
 from typing import Literal, Optional
@@ -18,10 +19,12 @@ from keep_alive import keep_alive
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-get_daily_store = [
-    {"username": "PureAspiration", "region": "ap", "receiver_user_id": 291147438444773376, "retrieved": False},
-    {"username": "tiya1017", "region": "ap", "receiver_user_id": 994493601297997834, "retrieved": False},
-]
+get_daily_store = []
+
+client_platform = "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjIyMDAwLjEuNzY4LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9"
+client_version = "release-07.03-shipping-11-953184"
+ssl._create_default_https_context = ssl._create_unverified_context
+
 
 def separator():
     print(f"\n==========[@ {datetime.datetime.fromtimestamp(time.time()).strftime('%d/%m/%Y %H:%M:%S')}]==========")
@@ -107,8 +110,8 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             "Authorization": f"Bearer {auth.access_token}",
             "User-Agent": username,
             "X-Riot-Entitlements-JWT": auth.entitlements_token,
-            "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
-            "X-Riot-ClientVersion": "pbe-shipping-55-604424"
+            "X-Riot-ClientPlatform": client_platform,
+            "X-Riot-ClientVersion": client_version
         }
         skin_panel, accessory_store = get_store.get_store(headers, auth.user_id, region)
         store, store_time_left = get_store.get_skin_details(skin_panel, auth.user_id)
@@ -130,7 +133,7 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
     except Exception as exception:
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
-        await unknown_exception(interaction)
+        await unknown_exception(interaction, traceback=traceback.format_exc())
         return
 
 
@@ -189,8 +192,8 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             "Authorization": f"Bearer {auth.access_token}",
             "User-Agent": username,
             "X-Riot-Entitlements-JWT": auth.entitlements_token,
-            "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
-            "X-Riot-ClientVersion": "pbe-shipping-55-604424"
+            "X-Riot-ClientPlatform": client_platform,
+            "X-Riot-ClientVersion": client_version
         }
         skin_panel, accessory_store = get_store.get_store(headers, auth.user_id, region)
         store, store_time_left = get_store.get_accessory_details(accessory_store, auth.user_id)
@@ -210,7 +213,7 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
     except Exception as exception:
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
-        await unknown_exception(interaction)
+        await unknown_exception(interaction, traceback=traceback.format_exc())
         return
 
 
@@ -268,8 +271,8 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
             "Authorization": f"Bearer {auth.access_token}",
             "User-Agent": username,
             "X-Riot-Entitlements-JWT": auth.entitlements_token,
-            "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
-            "X-Riot-ClientVersion": "pbe-shipping-55-604424"
+            "X-Riot-ClientPlatform": client_platform,
+            "X-Riot-ClientVersion": client_version
         }
         vp, rp, kc = await get_store.get_balance(headers, auth.user_id, region)
         embed = discord.Embed(title="Balance", description=f"Valorant Points: {vp}\nRadianite Points: {rp}\nKingdom Credits: {kc}", color=discord.Color.gold())
@@ -280,7 +283,7 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
     except Exception as exception:
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
-        await unknown_exception(interaction)
+        await unknown_exception(interaction, traceback=traceback.format_exc())
         return
 
 
@@ -332,7 +335,7 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
     except Exception as exception:
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
-        await unknown_exception(interaction)
+        await unknown_exception(interaction, traceback=traceback.format_exc())
         return
 
 
@@ -367,7 +370,7 @@ async def self(interaction: discord.Interaction, username: str, region: Literal[
     except Exception as exception:
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
-        await unknown_exception(interaction)
+        await unknown_exception(interaction, traceback=traceback.format_exc())
         return
 
 
@@ -419,7 +422,7 @@ async def self(interaction: discord.Interaction, username: str, password: str, r
     except Exception as exception:
         print(f"Unknown exception occurred: {str(exception)}")
         traceback.print_exc()
-        await unknown_exception(interaction)
+        await unknown_exception(interaction, traceback=traceback.format_exc())
         return
 
 
@@ -444,7 +447,7 @@ async def self(interaction: discord.Interaction):
     await interaction.response.send_message(embed=bot_responses.about_command())
 
 
-async def unknown_exception(interaction: discord.Interaction):
+async def unknown_exception(interaction: discord.Interaction, traceback: str = None):
     try:
         await interaction.response.send_message(embed=bot_responses.unknown_error())
         print("Unknown error raised and sent with response.send_message")
@@ -462,6 +465,9 @@ async def unknown_exception(interaction: discord.Interaction):
                 print("Unknown error raised and sent with channel.send")
             except discord.errors.Forbidden:
                 print("Unknown error raised but could not be sent with response.send_message/followup.send/channel.send")
+
+    user = await client.fetch_user(291147438444773376)
+    await user.send(f"Unknown error occurred at {time.time()} ({datetime.datetime.fromtimestamp(time.time()).strftime('%d/%m/%Y %H:%M:%S')}). Traceback follows: \n{traceback}")
 
 
 async def automatic_get_store(daily_store_user, get_accessory_store: bool):
@@ -510,8 +516,8 @@ async def automatic_get_store(daily_store_user, get_accessory_store: bool):
                 "Authorization": f"Bearer {auth.access_token}",
                 "User-Agent": username,
                 "X-Riot-Entitlements-JWT": auth.entitlements_token,
-                "X-Riot-ClientPlatform": "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9",
-                "X-Riot-ClientVersion": "pbe-shipping-55-604424"
+                "X-Riot-ClientPlatform": client_platform,
+                "X-Riot-ClientVersion": client_version
             }
             skin_panel, accessory_store = get_store.get_store(headers, auth.user_id, region)
 

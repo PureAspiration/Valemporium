@@ -15,7 +15,7 @@ def convert_time(seconds):
 
 
 def get_store(headers, user_id, region):
-    r = requests.get(f"https://pd.{region}.a.pvp.net/store/v2/storefront/{user_id}/", headers=headers)
+    r = requests.get(f"https://pd.{region}.a.pvp.net/store/v2/storefront/{user_id}/", headers=headers, verify=False)
     data = json.loads(r.text)
     if user_id == "c0a75b2c-dbe7-5234-bbdc-99a7fc533fc1":  # TODO REMOVE DEBUG
         print("v2 api response")
@@ -29,7 +29,7 @@ def get_skin_details(skin_panel, user_id):
     offers = []
     for item in skin_panel['SingleItemStoreOffers']:
         item_id = item['OfferID'].lower()
-        r = requests.get(f"https://valorant-api.com/v1/weapons/skinlevels/{item_id}/")
+        r = requests.get(f"https://valorant-api.com/v1/weapons/skinlevels/{item_id}/", verify=False)
         content = json.loads(r.text)
 
         if user_id == "c0a75b2c-dbe7-5234-bbdc-99a7fc533fc1":  # TODO REMOVE DEBUG
@@ -71,7 +71,7 @@ def get_accessory_details(accessory_store, user_id):
             print(item)
             continue
 
-        r = requests.get(f"https://valorant-api.com/v1/{item_type}/{item_id}/")
+        r = requests.get(f"https://valorant-api.com/v1/{item_type}/{item_id}/", verify=False)
         content = json.loads(r.text)
 
         if user_id == "c0a75b2c-dbe7-5234-bbdc-99a7fc533fc1":  # TODO REMOVE DEBUG

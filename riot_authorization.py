@@ -95,7 +95,7 @@ class RiotAuth:
         self.expires_at: int = 0
         self.user_id: Optional[str] = None
         self.entitlements_token: Optional[str] = None
-        self.RIOT_CLIENT_USER_AGENT = f"RiotClient/{get_user_agent()} %s (Windows;10;;Professional, x64)"
+        self.RIOT_CLIENT_USER_AGENT = "ShooterGame/11 Windows/10.0.22621.1.768.64bit"
 
     @staticmethod
     def create_riot_auth_ssl_ctx() -> ssl.SSLContext:
@@ -183,8 +183,8 @@ class RiotAuth:
         ) as session:
             # noinspection SpellCheckingInspection
             headers = {
-                "Accept-Encoding": "deflate, gzip, zstd",
-                "user-agent": self.RIOT_CLIENT_USER_AGENT % "rso-auth",
+                "Accept-Encoding": "deflate, gzip",
+                "user-agent": self.RIOT_CLIENT_USER_AGENT,
                 "Cache-Control": "no-cache",
                 "Accept": "application/json",
             }
@@ -288,7 +288,7 @@ class RiotAuth:
             return False
 
 
-def get_user_agent():
-    response = requests.get("https://valorant-api.com/v1/version")
+def get_user_agent():  # Not used for some reason, remove when confirmed
+    response = requests.get("https://valorant-api.com/v1/version", verify=False)
     version_data = response.json()
     return version_data['data']['riotClientBuild']
